@@ -55,7 +55,7 @@ Knock.setup do |config|
   # config.token_audience = nil
 
   ## If using Auth0, uncomment the line below
-  # config.token_audience = -> { Rails.application.secrets.auth0_client_id }
+  config.token_audience = -> { Rails.application.secrets.auth0_client_id }
 
   ## Signature algorithm
   ## -------------------
@@ -72,6 +72,15 @@ Knock.setup do |config|
   ##
   ## Default:
   # config.token_secret_signature_key = -> { Rails.application.secrets.secret_key_base }
+
+  require 'base64'
+
+  # extracted from original [method](http://www.rubydoc.info/github/jwt/ruby-jwt/JWT.base64url_decode)
+  config.token_secret_signature_key = -> {
+    secret = Rails.application.secrets.auth0_client_secret
+    secret += '=' * (4 - secret.length.modulo(4))
+    Base64.decode64(secret.tr('-_', '+/'))
+  }
 
   ## If using Auth0, uncomment the line below
   # config.token_secret_signature_key = -> { JWT.base64url_decode Rails.application.secrets.auth0_client_secret }
